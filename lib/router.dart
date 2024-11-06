@@ -7,11 +7,13 @@ import 'level_selection/level_selection_screen.dart';
 import 'level_selection/levels.dart';
 import 'main_menu/main_menu_screen.dart';
 import 'settings/settings_screen.dart';
+import 'profile/profile_screen.dart';
+import 'profile/signin_screen.dart';
+import 'profile/signup_screen.dart';
+import 'profile/skins_screen.dart'; 
 import 'style/page_transition.dart';
 import 'style/palette.dart';
 
-/// The router describes the game's navigational hierarchy, from the main
-/// screen through settings screens all the way to each individual level.
 final router = GoRouter(
   routes: [
     GoRoute(
@@ -47,6 +49,24 @@ final router = GoRouter(
           builder: (context, state) => const SettingsScreen(
             key: Key('settings'),
           ),
+        ),
+        GoRoute(
+          path: 'profile',
+          builder: (context, state) => const ProfileScreen(),
+          routes: [
+            GoRoute(
+              path: 'signin',
+              builder: (context, state) => const SignInScreen(),
+            ),
+            GoRoute(
+              path: 'signup',
+              builder: (context, state) => const SignUpScreen(),
+            ),
+             GoRoute(
+              path: 'skins',
+              builder: (context, state) => const SkinsScreen(),
+            ),
+          ],
         ),
       ],
     ),

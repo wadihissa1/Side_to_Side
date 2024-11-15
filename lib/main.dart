@@ -13,7 +13,7 @@ import 'style/palette.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Flame.device.setPortrait();
+  await Flame.device.setLandscape();
   await Flame.device.fullScreen();
   runApp(const MyGame());
 }
@@ -46,7 +46,7 @@ class MyGame extends StatelessWidget {
           final palette = context.watch<Palette>();
 
           return MaterialApp.router(
-            title: 'Side To Side',
+            title: 'Endless Runner',
             theme: flutterNesTheme().copyWith(
               colorScheme: ColorScheme.fromSeed(
                 seedColor: palette.seed.color,

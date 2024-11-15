@@ -158,7 +158,7 @@ class EndlessWorld extends World with TapCallbacks, HasGameReference {
     // the air. This makes it possible to later implement double jumping inside
     // of the `player` class if one would want to.
     if (towards.y.isNegative) {
-     // player.jump(towards);
+      player.jump(towards);
     }
   }
 

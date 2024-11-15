@@ -1,12 +1,12 @@
-import 'package:endless_runner/app_lifecycle/app_lifecycle.dart';
-import 'package:endless_runner/audio/audio_controller.dart';
-import 'package:endless_runner/audio/sounds.dart';
-import 'package:endless_runner/flame_game/endless_runner.dart';
-import 'package:endless_runner/flame_game/game_screen.dart';
-import 'package:endless_runner/main.dart';
-import 'package:endless_runner/player_progress/persistence/memory_player_progress_persistence.dart';
-import 'package:endless_runner/player_progress/player_progress.dart';
-import 'package:endless_runner/settings/settings.dart';
+import 'package:side_to_side/app_lifecycle/app_lifecycle.dart';
+import 'package:side_to_side/audio/audio_controller.dart';
+import 'package:side_to_side/audio/sounds.dart';
+import 'package:side_to_side/flame_game/endless_runner.dart';
+import 'package:side_to_side/flame_game/game_screen.dart';
+import 'package:side_to_side/main.dart';
+import 'package:side_to_side/player_progress/persistence/memory_player_progress_persistence.dart';
+import 'package:side_to_side/player_progress/player_progress.dart';
+import 'package:side_to_side/settings/settings.dart';
 import 'package:flame_test/flame_test.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -43,12 +43,12 @@ void main() {
 
   testWithGame(
     'smoke test flame game',
-    () {
+        () {
       return EndlessRunner(
         level: (
-          number: 1,
-          winScore: 3,
-          canSpawnTall: false,
+        number: 1,
+        winScore: 3,
+        canSpawnTall: false,
         ),
         playerProgress: PlayerProgress(
           store: MemoryOnlyPlayerProgressPersistence(),
@@ -56,14 +56,14 @@ void main() {
         audioController: _MockAudioController(),
       );
     },
-    (game) async {
+        (game) async {
       game.overlays.addEntry(
         GameScreen.backButtonKey,
-        (context, game) => Container(),
+            (context, game) => Container(),
       );
       game.overlays.addEntry(
         GameScreen.winDialogKey,
-        (context, game) => Container(),
+            (context, game) => Container(),
       );
       await game.onLoad();
       game.update(0);

@@ -10,7 +10,7 @@ import 'settings/settings_screen.dart';
 import 'profile/profile_screen.dart';
 import 'profile/signin_screen.dart';
 import 'profile/signup_screen.dart';
-import 'profile/skins_screen.dart'; 
+import 'profile/skins_screen.dart';
 import 'style/page_transition.dart';
 import 'style/palette.dart';
 
@@ -52,7 +52,16 @@ final router = GoRouter(
         ),
         GoRoute(
           path: 'profile',
-          builder: (context, state) => const ProfileScreen(),
+          builder: (context, state) {
+            // Ensure userId and token are passed through query parameters
+            final userId = int.tryParse(state.queryParameters['userId'] ?? '');
+            final token = state.queryParameters['token'];
+            if (userId != null && token != null) {
+              return ProfileScreen(userId: userId, token: token);
+            }
+            // Handle if userId or token is missing (e.g., redirect or show error)
+            return const SignInScreen();
+          },
           routes: [
             GoRoute(
               path: 'signin',
@@ -62,7 +71,7 @@ final router = GoRouter(
               path: 'signup',
               builder: (context, state) => const SignUpScreen(),
             ),
-             GoRoute(
+            GoRoute(
               path: 'skins',
               builder: (context, state) => const SkinsScreen(),
             ),

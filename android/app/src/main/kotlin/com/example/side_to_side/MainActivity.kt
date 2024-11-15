@@ -1,4 +1,4 @@
-package com.example.endless_runner
+package com.example.side_to_side
 
 import io.flutter.embedding.android.FlutterActivity
 

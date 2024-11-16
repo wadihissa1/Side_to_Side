@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nes_ui/nes_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_lifecycle/app_lifecycle.dart';
 import 'audio/audio_controller.dart';
@@ -15,11 +16,20 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Flame.device.setLandscape();
   await Flame.device.fullScreen();
-  runApp(const MyGame());
+
+  // Load SharedPreferences to retrieve the token and userId
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String? token = prefs.getString('token');
+  final int? userId = prefs.getInt('userId');
+
+  runApp(MyGame(initialToken: token, initialUserId: userId));
 }
 
 class MyGame extends StatelessWidget {
-  const MyGame({super.key});
+  final String? initialToken;
+  final int? initialUserId;
+
+  const MyGame({super.key, required this.initialToken, required this.initialUserId});
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +67,8 @@ class MyGame extends StatelessWidget {
                 displayColor: palette.text.color,
               ),
             ),
-            routerConfig: router,
+            // Pass token and userId to the router
+            routerConfig: router(initialToken, initialUserId),
           );
         }),
       ),

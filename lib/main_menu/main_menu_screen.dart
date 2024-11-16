@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../audio/audio_controller.dart';
 import '../audio/sounds.dart';
@@ -11,6 +12,11 @@ import '../style/wobbly_button.dart';
 
 class MainMenuScreen extends StatelessWidget {
   const MainMenuScreen({super.key});
+
+  Future<bool> isLoggedIn() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token') != null && prefs.getInt('userId') != null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +41,7 @@ class MainMenuScreen extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 500),
                   child: const Text(
-                    'Lets gooo khaye l ALEX.',
+                    'Let\'s gooo khaye l ALEX.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Press Start 2P',
@@ -60,12 +66,15 @@ class MainMenuScreen extends StatelessWidget {
             ),
             _gap,
             WobblyButton(
-              onPressed: () => GoRouter.of(context).push('/settings'),
+              onPressed: () {
+                audioController.playSfx(SfxType.buttonTap);
+                GoRouter.of(context).go('/settings');
+              },
               child: const Text('Settings'),
             ),
             _gap,
             WobblyButton(
-              onPressed: () {
+              onPressed: () async {
                 audioController.playSfx(SfxType.buttonTap);
                 GoRouter.of(context).go('/profile');
               },
@@ -85,7 +94,7 @@ class MainMenuScreen extends StatelessWidget {
               ),
             ),
             _gap,
-            const Text('Built by Wadih Issa'),
+            const Text('Built by Wadih Issa & Alexander Issa'),
           ],
         ),
       ),

@@ -9,8 +9,6 @@ import '../style/palette.dart';
 import '../constants.dart';
 import '../audio/audio_controller.dart';
 import '../audio/sounds.dart';
-import 'package:intl/intl.dart';
-import 'dart:io';
 
 class SignInScreen extends StatelessWidget {
   const SignInScreen({super.key});
@@ -20,7 +18,6 @@ class SignInScreen extends StatelessWidget {
     await prefs.setString('token', token);
     await prefs.setInt('userId', userId);
   }
-
 
   Future<void> _signIn(BuildContext context, String email, String password) async {
     final audioController = context.read<AudioController>();
@@ -229,68 +226,71 @@ class SignInScreen extends StatelessWidget {
         backgroundColor: palette.backgroundSignIn.color,
         iconTheme: IconThemeData(color: palette.signInText.color),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                labelStyle: TextStyle(color: palette.signInText.color),
-                border: const OutlineInputBorder(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  labelStyle: TextStyle(color: palette.signInText.color),
+                  border: const OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.emailAddress,
+                style: TextStyle(color: palette.signInText.color),
               ),
-              keyboardType: TextInputType.emailAddress,
-              style: TextStyle(color: palette.signInText.color),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                labelStyle: TextStyle(color: palette.signInText.color),
-                border: const OutlineInputBorder(),
+              const SizedBox(height: 16),
+              TextField(
+                controller: passwordController,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  labelStyle: TextStyle(color: palette.signInText.color),
+                  border: const OutlineInputBorder(),
+                ),
+                obscureText: true,
+                style: TextStyle(color: palette.signInText.color),
               ),
-              obscureText: true,
-              style: TextStyle(color: palette.signInText.color),
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    _showForgotPasswordDialog(context);
+                  },
+                  child: const Text('Forgot Password?'),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: palette.signInButton.color,
+                  foregroundColor: palette.signInButtonText.color,
+                ),
                 onPressed: () {
-                  _showForgotPasswordDialog(context);
+                  final email = emailController.text.trim();
+                  final password = passwordController.text.trim();
+                  _signIn(context, email, password);
                 },
-                child: const Text('Forgot Password?'),
+                child: const Text('Sign In'),
               ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: palette.signInButton.color,
-                foregroundColor: palette.signInButtonText.color,
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                ),
+                icon: const Icon(Icons.g_mobiledata, color: Colors.red),
+                onPressed: () {
+                  _signInWithGoogle(context);
+                },
+                label: const Text('Sign in with Google'),
               ),
-              onPressed: () {
-                final email = emailController.text.trim();
-                final password = passwordController.text.trim();
-                _signIn(context, email, password);
-              },
-              child: const Text('Sign In'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: palette.signInButton.color,
-                foregroundColor: palette.signInButtonText.color,
-              ),
-              onPressed: () {
-                _signInWithGoogle(context);
-              },
-              child: const Text('Sign in with Google'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

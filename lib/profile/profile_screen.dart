@@ -150,75 +150,99 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (isLoggedIn && userData != null) ...[
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: userData!['profile_image'] != null &&
-                      userData!['profile_image']!.toString().isNotEmpty
-                      ? NetworkImage(
-                      userData!['profile_image']!.toString())
-                      : null,
-                  child: userData!['profile_image'] == null
-                      ? const Icon(Icons.person, size: 50)
-                      : null,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '${userData!['username']}',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: palette.profileText.color,
+          : SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (isLoggedIn && userData != null) ...[
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: userData!['profile_image'] != null &&
+                        userData!['profile_image']!.toString().isNotEmpty
+                        ? NetworkImage(userData!['profile_image']!.toString())
+                        : null,
+                    child: userData!['profile_image'] == null
+                        ? const Icon(Icons.person, size: 50)
+                        : null,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Score: ${userData!['score']}',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: palette.profileText.color,
+                  const SizedBox(height: 16),
+                  Text(
+                    '${userData!['username']}',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: palette.profileText.color,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Retry Times: ${userData!['retry_times']}',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: palette.profileText.color,
+                  const SizedBox(height: 16),
+                  Text(
+                    'Score: ${userData!['score']}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: palette.profileText.color,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Coins: ${userData!['coin']}',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: palette.profileText.color,
+                  const SizedBox(height: 16),
+                  Text(
+                    'Retry Times: ${userData!['retry_times']}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: palette.profileText.color,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-
-              ] else ...[
-                const Icon(Icons.person, size: 100),
-                const SizedBox(height: 16),
-                const Text(
-                  'Welcome, Guest!',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(height: 16),
+                  Text(
+                    'Coins: ${userData!['coin']}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: palette.profileText.color,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
+                ] else ...[
+                  const Icon(Icons.person, size: 100),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Welcome, Guest!',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: palette.profileButton.color,
+                      foregroundColor: palette.profileButtonText.color,
+                    ),
+                    onPressed: () {
+                      audioController.playSfx(SfxType.buttonTap);
+                      context.go('/profile/signin');
+                    },
+                    child: const Text('Sign In'),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: palette.profileButton.color,
+                      foregroundColor: palette.profileButtonText.color,
+                    ),
+                    onPressed: () {
+                      audioController.playSfx(SfxType.buttonTap);
+                      context.go('/profile/signup');
+                    },
+                    child: const Text('Sign Up'),
+                  ),
+                ],
+                const SizedBox(height: 32),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: palette.profileButton.color,
@@ -226,45 +250,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   onPressed: () {
                     audioController.playSfx(SfxType.buttonTap);
-                    context.go('/profile/signin');
+                    context.go('/profile/skins');
                   },
-                  child: const Text('Sign In'),
+                  child: const Text('Skins'),
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: palette.profileButton.color,
-                    foregroundColor: palette.profileButtonText.color,
-                  ),
-                  onPressed: () {
-                    audioController.playSfx(SfxType.buttonTap);
-                    context.go('/profile/signup');
-                  },
-                  child: const Text('Sign Up'),
-                ),
+                if (isLoggedIn)
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: palette.profileButton.color,
+                      foregroundColor: palette.profileButtonText.color,
+                    ),
+                    onPressed: () => logout(context),
+                    child: const Text('Logout'),
+                  )
               ],
-              const SizedBox(height: 32),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: palette.profileButton.color,
-                  foregroundColor: palette.profileButtonText.color,
-                ),
-                onPressed: () {
-                  audioController.playSfx(SfxType.buttonTap);
-                  context.go('/profile/skins');
-                },
-                child: const Text('Skins'),
-              ),
-              if (isLoggedIn)
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: palette.profileButton.color,
-                    foregroundColor: palette.profileButtonText.color,
-                  ),
-                  onPressed: () => logout(context),
-                  child: const Text('Logout'),
-                )
-            ],
+            ),
           ),
         ),
       ),

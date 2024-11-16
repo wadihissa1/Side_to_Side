@@ -1,4 +1,4 @@
-const String baseApiUrl = 'https://2ae96c1c1780af96afcd381adcba2a73.serveo.net/api';
+const String baseApiUrl = 'http://192.168.18.37:8000/api';
 
 const String registerEndpoint = '$baseApiUrl/register';
 const String googleLoginEndpoint = '$baseApiUrl/google-login';
@@ -7,3 +7,11 @@ const String userprofileEndpoint = '$baseApiUrl/user-profile';
 const String logoutEndpoint = '$baseApiUrl/logout';
 const String resetPasswordEndpoint = '$baseApiUrl/reset-password';
 const String forgotPasswordEndpoint = '$baseApiUrl/forgot-password';
+
+// New routes for skins and backgrounds
+const String getSkinsAndBackgroundsEndpoint = '$baseApiUrl/skins-and-backgrounds';
+const String purchaseItemEndpoint = '$baseApiUrl/purchase-item';
+const String selectItemEndpoint = '$baseApiUrl/select-item';
+
+const String updateProfilePhotoEndpoint = '$baseApiUrl/update-profile-image';
+const String resetprogressEndpoint = '$baseApiUrl/reset-score-retry';

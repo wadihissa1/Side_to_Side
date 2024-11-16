@@ -18,6 +18,7 @@ class LevelSelectionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.watch<Palette>();
     final playerProgress = context.watch<PlayerProgress>();
+    final audioController = context.read<AudioController>();
     final levelTextStyle =
         Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.4);
 
@@ -60,7 +61,7 @@ class LevelSelectionScreen extends StatelessWidget {
                     ListTile(
                       enabled: playerProgress.levels.length >= level.number - 1,
                       onTap: () {
-                        final audioController = context.read<AudioController>();
+
                         audioController.playSfx(SfxType.buttonTap);
 
                         GoRouter.of(context)
@@ -98,7 +99,9 @@ class LevelSelectionScreen extends StatelessWidget {
           const SizedBox(height: 30),
           WobblyButton(
             onPressed: () {
+              audioController.playSfx(SfxType.buttonTap);
               GoRouter.of(context).go('/');
+
             },
             child: const Text('Back'),
           ),

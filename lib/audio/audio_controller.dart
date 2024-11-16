@@ -45,7 +45,7 @@ class AudioController {
       : assert(polyphony >= 1),
         _musicPlayer = AudioPlayer(playerId: 'musicPlayer'),
         _sfxPlayers = Iterable.generate(
-                polyphony, (i) => AudioPlayer(playerId: 'sfxPlayer#$i'))
+            polyphony, (i) => AudioPlayer(playerId: 'sfxPlayer#$i'))
             .toList(growable: false),
         _playlist = Queue.of(List<Song>.of(songs)..shuffle()) {
     _musicPlayer.onPlayerComplete.listen(_handleSongFinished);
@@ -84,7 +84,7 @@ class AudioController {
     final soundsOn = _settings?.soundsOn.value ?? false;
     if (!soundsOn) {
       _log.fine(() =>
-          'Ignoring playing sound ($type) because sounds are turned off.');
+      'Ignoring playing sound ($type) because sounds are turned off.');
       return;
     }
 
@@ -157,17 +157,25 @@ class AudioController {
   }
 
   void _handleAppLifecycle() {
+    // Prevent music from turning on when interacting with other applications
+    if (_lifecycleNotifier!.value == AppLifecycleState.resumed &&
+        !_settings!.audioOn.value) {
+      _log.info('Application resumed, but audio is muted. Keeping music off.');
+      return;
+    }
     switch (_lifecycleNotifier!.value) {
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
       case AppLifecycleState.hidden:
         _stopAllSound();
+        break;
       case AppLifecycleState.resumed:
         if (_settings!.audioOn.value && _settings!.musicOn.value) {
           _startOrResumeMusic();
         }
+        break;
       case AppLifecycleState.inactive:
-        // No need to react to this state change.
+      // No need to react to this state change.
         break;
     }
   }
@@ -181,13 +189,14 @@ class AudioController {
   }
 
   void _musicOnHandler() {
+    // Ensure synchronization with other components
     if (_settings!.musicOn.value) {
-      // Music got turned on.
+      _log.info('Music turned on via settings. Synchronizing state.');
       if (_settings!.audioOn.value) {
         _startOrResumeMusic();
       }
     } else {
-      // Music got turned off.
+      _log.info('Music turned off via settings. Synchronizing state.');
       _musicPlayer.pause();
     }
   }

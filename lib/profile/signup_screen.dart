@@ -7,8 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../style/palette.dart';
 import '../constants.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
-import 'dart:io'; // Import for platform checks if needed.
 
 
 class SignUpScreen extends StatefulWidget {

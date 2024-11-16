@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -87,6 +89,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> updateProfilePhoto(File image) async {
+    try {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$updateProfilePhotoEndpoint/$userId'),
+      );
+      request.headers['Authorization'] = 'Bearer $token';
+      request.files.add(await http.MultipartFile.fromPath('profile_image', image.path));
+
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile photo updated successfully!')),
+        );
+        await fetchUserData(); // Refresh user data after update
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update profile photo')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred: $e')),
+      );
+    }
+  }
+
+  Future<void> pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final image = File(pickedFile.path);
+      await updateProfilePhoto(image);
+    }
+  }
+
   Future<void> logout(BuildContext context) async {
     final audioController = context.read<AudioController>();
     audioController.playSfx(SfxType.buttonTap);
@@ -150,74 +190,105 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (isLoggedIn && userData != null) ...[
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: userData!['profile_image'] != null &&
-                        userData!['profile_image']!.toString().isNotEmpty
-                        ? NetworkImage(userData!['profile_image']!.toString())
-                        : null,
-                    child: userData!['profile_image'] == null
-                        ? const Icon(Icons.person, size: 50)
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    '${userData!['username']}',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: palette.profileText.color,
+          : RefreshIndicator(
+        onRefresh: fetchUserData,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (isLoggedIn && userData != null) ...[
+                    GestureDetector(
+                      onTap: pickImage,
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundImage: userData!['profile_image'] != null &&
+                            userData!['profile_image']!.toString().isNotEmpty
+                            ? NetworkImage(userData!['profile_image']!.toString())
+                            : null,
+                        child: userData!['profile_image'] == null
+                            ? const Icon(Icons.camera_alt, size: 50)
+                            : null,
+                      ),
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Score: ${userData!['score']}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: palette.profileText.color,
+                    const SizedBox(height: 16),
+                    Text(
+                      '${userData!['username']}',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: palette.profileText.color,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Retry Times: ${userData!['retry_times']}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: palette.profileText.color,
+                    const SizedBox(height: 16),
+                    Text(
+                      'Score: ${userData!['score']}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: palette.profileText.color,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Coins: ${userData!['coin']}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: palette.profileText.color,
+                    const SizedBox(height: 16),
+                    Text(
+                      'Retry Times: ${userData!['retry_times']}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: palette.profileText.color,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                ] else ...[
-                  const Icon(Icons.person, size: 100),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Welcome, Guest!',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(height: 16),
+                    Text(
+                      'Coins: ${userData!['coin']}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: palette.profileText.color,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
+                  ] else ...[
+                    const Icon(Icons.person, size: 100),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Welcome, Guest!',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: palette.profileButton.color,
+                        foregroundColor: palette.profileButtonText.color,
+                      ),
+                      onPressed: () {
+                        audioController.playSfx(SfxType.buttonTap);
+                        context.go('/profile/signin');
+                      },
+                      child: const Text('Sign In'),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: palette.profileButton.color,
+                        foregroundColor: palette.profileButtonText.color,
+                      ),
+                      onPressed: () {
+                        audioController.playSfx(SfxType.buttonTap);
+                        context.go('/profile/signup');
+                      },
+                      child: const Text('Sign Up'),
+                    ),
+                  ],
+                  const SizedBox(height: 32),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: palette.profileButton.color,
@@ -225,45 +296,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     onPressed: () {
                       audioController.playSfx(SfxType.buttonTap);
-                      context.go('/profile/signin');
+                      context.go('/profile/skins');
                     },
-                    child: const Text('Sign In'),
+                    child: const Text('Skins'),
                   ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: palette.profileButton.color,
-                      foregroundColor: palette.profileButtonText.color,
-                    ),
-                    onPressed: () {
-                      audioController.playSfx(SfxType.buttonTap);
-                      context.go('/profile/signup');
-                    },
-                    child: const Text('Sign Up'),
-                  ),
+                  if (isLoggedIn)
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: palette.profileButton.color,
+                        foregroundColor: palette.profileButtonText.color,
+                      ),
+                      onPressed: () => logout(context),
+                      child: const Text('Logout'),
+                    )
                 ],
-                const SizedBox(height: 32),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: palette.profileButton.color,
-                    foregroundColor: palette.profileButtonText.color,
-                  ),
-                  onPressed: () {
-                    audioController.playSfx(SfxType.buttonTap);
-                    context.go('/profile/skins');
-                  },
-                  child: const Text('Skins'),
-                ),
-                if (isLoggedIn)
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: palette.profileButton.color,
-                      foregroundColor: palette.profileButtonText.color,
-                    ),
-                    onPressed: () => logout(context),
-                    child: const Text('Logout'),
-                  )
-              ],
+              ),
             ),
           ),
         ),

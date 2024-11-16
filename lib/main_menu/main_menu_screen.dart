@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../audio/audio_controller.dart';
 import '../audio/sounds.dart';
-import '../settings/settings.dart';
 import '../style/palette.dart';
 import '../style/wobbly_button.dart';
 
@@ -20,7 +19,6 @@ class MainMenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.watch<Palette>();
-    final settingsController = context.watch<SettingsController>();
     final audioController = context.watch<AudioController>();
 
     return Scaffold(
@@ -44,7 +42,7 @@ class MainMenuScreen extends StatelessWidget {
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 500),
                       child: const Text(
-                        'Let\'s gooo khaye l ALEX.',
+                        'Let\'s gooo to PLAY',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: 'Press Start 2P',
@@ -90,19 +88,9 @@ class MainMenuScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Padding(
-                    padding: const EdgeInsets.only(top: 32),
-                    child: ValueListenableBuilder<bool>(
-                      valueListenable: settingsController.audioOn,
-                      builder: (context, audioOn, child) {
-                        return IconButton(
-                          onPressed: () => settingsController.toggleAudioOn(),
-                          icon: Icon(audioOn ? Icons.volume_up : Icons.volume_off),
-                        );
-                      },
-                    ),
+                    padding: const EdgeInsets.only(top: 70),
+                    child: const Text('Built by Wadih Issa & Alexander Issa'),
                   ),
-                  const SizedBox(height: 10),
-                  const Text('Built by Wadih Issa & Alexander Issa'),
                 ],
               ),
             ),

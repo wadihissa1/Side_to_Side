@@ -27,33 +27,39 @@ class MainMenuScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: palette.backgroundMain.color,
       body: ResponsiveScreen(
-        squarishMainArea: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/images/banner1.png',
-                filterQuality: FilterQuality.none,
+squarishMainArea: Center(
+  child: Padding(
+    padding: const EdgeInsets.only(top: 0), // Move the banner closer to the top
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.start, // Align content to the top
+      children: [
+        Image.asset(
+          'assets/images/banner.png',
+          filterQuality: FilterQuality.none,
+          width: 400, // Set desired width
+          height: 250, // Set desired height
+          fit: BoxFit.contain, // Optional: Adjust scaling
+        ),
+        const SizedBox(height: 50),
+        Transform.rotate(
+          angle: -0.1,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500),
+            child: const Text(
+              'Can you beat the 300 SCORE!!',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Press Start 2P',
+                fontSize: 24,
+                height: 1,
               ),
-              _gap,
-              Transform.rotate(
-                angle: -0.1,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 500),
-                  child: const Text(
-                    'Let\'s gooo khaye l ALEX.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Press Start 2P',
-                      fontSize: 32,
-                      height: 1,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
+      ],
+    ),
+  ),
+),
         rectangularMenuArea: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

@@ -32,7 +32,7 @@ class MainMenuScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/images/banner.png',
+                'assets/images/banner1.png',
                 filterQuality: FilterQuality.none,
               ),
               _gap,

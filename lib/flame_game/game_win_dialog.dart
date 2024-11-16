@@ -6,23 +6,23 @@ import 'package:provider/provider.dart';
 import '../level_selection/levels.dart';
 import '../style/palette.dart';
 
-/// This dialog is shown when a level is completed.
-///
-/// It shows what time the level was completed in and if there are more levels
-/// it lets the user go to the next level, or otherwise back to the level
-/// selection screen.
+/// This dialog is shown when the game ends (e.g., after collision with an obstacle).
 class GameWinDialog extends StatelessWidget {
   const GameWinDialog({
     super.key,
     required this.level,
-    required this.levelCompletedIn,
+    required this.highScore,
+    required this.coinsCollected,
   });
 
-  /// The properties of the level that was just finished.
+  /// The properties of the current level.
   final GameLevel level;
 
-  /// How many seconds that the level was completed in.
-  final int levelCompletedIn;
+  /// The high score achieved during the game.
+  final int highScore;
+
+  /// The total number of coins collected during the game.
+  final int coinsCollected;
 
   @override
   Widget build(BuildContext context) {
@@ -36,29 +36,29 @@ class GameWinDialog extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Well done!',
+              'Game Over!',
               style: Theme.of(context).textTheme.headlineMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
-              'You completed level ${level.number} in $levelCompletedIn seconds.',
+              'Level ${level.number} completed.',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            if (level.number < gameLevels.length) ...[
-              NesButton(
-                onPressed: () {
-                  context.go('/play/session/${level.number + 1}');
-                },
-                type: NesButtonType.primary,
-                child: const Text('Next level'),
-              ),
-              const SizedBox(height: 16),
-            ],
+            Text(
+              'High Score: $highScore',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Coins Collected: $coinsCollected',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
             NesButton(
               onPressed: () {
-                context.go('/play');
+                context.go('/play'); // Go back to level selection
               },
               type: NesButtonType.normal,
               child: const Text('Level selection'),

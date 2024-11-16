@@ -15,29 +15,32 @@ class Background extends ParallaxComponent {
   @override
   Future<void> onLoad() async {
     final layers = [
-      ParallaxImageData('scenery/BG.png'),
-      ParallaxImageData('scenery/BG2.png'),
-      ParallaxImageData('scenery/BG3.png'),
-      ParallaxImageData('scenery/BG4.png'),
+      ParallaxImageData('scenery/background.png'),
+      ParallaxImageData('scenery/clouds.png'),
+      ParallaxImageData('scenery/cliffs.png'),
+      ParallaxImageData('scenery/trees.png'),
+      ParallaxImageData('scenery/ground.png'),
     ];
 
-    // The base velocity is now moving upwards (negative Y-axis).
-    final baseVelocity = Vector2(0, -speed / pow(2, layers.length));
+    // The base velocity sets the speed of the layer the farthest to the back.
+    // Since the speed in our game is defined as the speed of the layer in the
+    // front, where the player is, we have to calculate what speed the layer in
+    // the back should have and then the parallax will take care of setting the
+    // speeds for the rest of the layers.
+    final baseVelocity = Vector2(speed / pow(2, layers.length), 0);
 
-    // The multiplier delta affects the speed difference between the layers.
-    // We only want our layers to move vertically, so we multiply the Y-axis speed.
-    final velocityMultiplierDelta = Vector2(0.0, 2.0);
+    // The multiplier delta is used by the parallax to multiply the speed of
+    // each layer compared to the last, starting from the back. Since we only
+    // want our layers to move in the X-axis, we multiply by something larger
+    // than 1.0 here so that the speed of each layer is higher the closer to the
+    // screen it is.
+    final velocityMultiplierDelta = Vector2(2.0, 0.0);
 
-    try {
-      parallax = await game.loadParallax(
-        layers,
-        baseVelocity: baseVelocity,
-        velocityMultiplierDelta: velocityMultiplierDelta,
-        filterQuality: FilterQuality.none,
-      );
-      print("Parallax loaded successfully");
-    } catch (e) {
-      print("Error loading parallax: $e");
-    }
+    parallax = await game.loadParallax(
+      layers,
+      baseVelocity: baseVelocity,
+      velocityMultiplierDelta: velocityMultiplierDelta,
+      filterQuality: FilterQuality.none,
+    );
   }
 }

@@ -15,3 +15,6 @@ const String selectItemEndpoint = '$baseApiUrl/select-item';
 
 const String updateProfilePhotoEndpoint = '$baseApiUrl/update-profile-image';
 const String resetprogressEndpoint = '$baseApiUrl/reset-score-retry';
+const String changepasswordEndpoint = '$baseApiUrl/change-password';
+const String sendscoreandcoinEndpoint = '$baseApiUrl/update-score-coins';
+

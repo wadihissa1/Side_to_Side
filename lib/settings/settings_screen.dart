@@ -28,67 +28,81 @@ class SettingsScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Change Password'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: currentPasswordController,
-                decoration: const InputDecoration(
-                  labelText: 'Current Password',
-                  border: OutlineInputBorder(),
+        return GestureDetector(
+          onTap: () {
+            // To dismiss the keyboard when tapping outside the fields
+            FocusScope.of(context).unfocus();
+          },
+          child: AlertDialog(
+            title: const Text('Change Password'),
+            content: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom, // Adjust for keyboard
                 ),
-                obscureText: true,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: currentPasswordController,
+                      decoration: const InputDecoration(
+                        labelText: 'Current Password',
+                        border: OutlineInputBorder(),
+                      ),
+                      obscureText: true,
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: newPasswordController,
+                      decoration: const InputDecoration(
+                        labelText: 'New Password',
+                        border: OutlineInputBorder(),
+                      ),
+                      obscureText: true,
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: confirmPasswordController,
+                      decoration: const InputDecoration(
+                        labelText: 'Confirm New Password',
+                        border: OutlineInputBorder(),
+                      ),
+                      obscureText: true,
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: newPasswordController,
-                decoration: const InputDecoration(
-                  labelText: 'New Password',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
               ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: confirmPasswordController,
-                decoration: const InputDecoration(
-                  labelText: 'Confirm New Password',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
+              TextButton(
+                onPressed: () async {
+                  final currentPassword = currentPasswordController.text.trim();
+                  final newPassword = newPasswordController.text.trim();
+                  final confirmPassword = confirmPasswordController.text.trim();
+
+                  if (newPassword != confirmPassword) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Passwords do not match!')),
+                    );
+                    return;
+                  }
+
+                  await _changePassword(context, currentPassword, newPassword);
+                  Navigator.pop(context);
+                },
+                child: const Text('Change'),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                final currentPassword = currentPasswordController.text.trim();
-                final newPassword = newPasswordController.text.trim();
-                final confirmPassword = confirmPasswordController.text.trim();
-
-                if (newPassword != confirmPassword) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Passwords do not match!')),
-                  );
-                  return;
-                }
-
-                await _changePassword(context, currentPassword, newPassword);
-                Navigator.pop(context);
-              },
-              child: const Text('Change'),
-            ),
-          ],
         );
       },
     );
   }
+
 
   Future<void> _changePassword(BuildContext context, String currentPassword, String newPassword) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -103,7 +117,7 @@ class SettingsScreen extends StatelessWidget {
 
     try {
       final response = await http.post(
-        Uri.parse('https://yourapi.com/api/change-password'),
+        Uri.parse(changepasswordEndpoint),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -135,8 +149,9 @@ class SettingsScreen extends StatelessWidget {
   Future<void> _resetProgress(BuildContext context) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('token');
+    final int? userId = prefs.getInt('userId');
 
-    if (token == null) {
+    if (token == null || userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('You need to log in to reset progress.')),
       );
@@ -150,6 +165,7 @@ class SettingsScreen extends StatelessWidget {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
+        body: jsonEncode({'user_id': userId}),
       );
 
       if (response.statusCode == 200) {
@@ -157,8 +173,11 @@ class SettingsScreen extends StatelessWidget {
           const SnackBar(content: Text('Progress reset successfully.')),
         );
       } else {
+        final responseData = jsonDecode(response.body);
+        final message =
+            responseData['message']?.toString() ?? 'Failed to reset progress. Try again.';
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to reset progress.')),
+          SnackBar(content: Text(message)),
         );
       }
     } catch (e) {
@@ -167,6 +186,7 @@ class SettingsScreen extends StatelessWidget {
       );
     }
   }
+
 
   Widget _divider() {
     return Divider(

@@ -17,9 +17,7 @@ dependencies:
   google_sign_in: ^6.2.2
   cupertino_icons: ^1.0.5
   intl: ^0.18.0
-  image_picker: ^0.8.7+3
-  permission_handler: ^10.2.0
-  image_cropper: 8.0.2
+
 
 
   audioplayers: ^6.0.0

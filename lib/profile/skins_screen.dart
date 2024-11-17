@@ -68,7 +68,7 @@ class _PlayerSkinsTabState extends State<PlayerSkinsTab> {
 
   Future<int> getUserId() async {
     final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getInt('user_id');
+    final userId = prefs.getInt('userId');
     print('Retrieved user_id: $userId'); // Debug output
     if (userId == null) {
       throw Exception('User ID is not found. Please log in again.');
@@ -118,19 +118,30 @@ class _PlayerSkinsTabState extends State<PlayerSkinsTab> {
 
           final skins = snapshot.data!;
 
+
+
+
           return ListView.builder(
             itemCount: skins.length,
             itemBuilder: (context, index) {
               final skin = skins[index];
-              final String name = skin['skin_name']?.toString() ?? 'Unknown';
-              final String image = skin['skin_image']?.toString() ?? '';
+              final String name = skin['name']?.toString() ?? 'Unknown';
+              final String image = skin['image']?.toString() ?? '';
               final int cost = skin['cost'] as int;
               final bool isUnlocked = skin['isUnlocked'] as bool;
               final bool isSelected = skin['isSelected'] as bool;
 
+              final String baseUrl = 'http://192.168.18.37:8000'; // Replace with your server's base URL
+              final String imageUrl = image.isNotEmpty ? '$baseUrl/storage/$image' : '';
+
               return ListTile(
-                leading: image.isNotEmpty
-                    ? Image.network(image, width: 50, height: 50)
+                leading: imageUrl.isNotEmpty
+                    ? Image.network(
+                  imageUrl,
+                  width: 100,
+                  height: 100,
+                  errorBuilder: (context, error, stackTrace) => Icon(Icons.image_not_supported),
+                )
                     : const SizedBox(),
                 title: Text(name, style: TextStyle(color: palette.skinsText.color)),
                 subtitle: Text('Cost: $cost'),
@@ -139,19 +150,18 @@ class _PlayerSkinsTabState extends State<PlayerSkinsTab> {
                   onPressed: isSelected
                       ? null
                       : () {
-                    // Select skin
                     selectItem(context, 'skin', skin['id'] as int);
                   },
                   child: Text(isSelected ? 'Selected' : 'Select'),
                 )
                     : ElevatedButton(
                   onPressed: () {
-                    // Purchase skin
                     purchaseItem(context, 'skin', skin['id'] as int);
                   },
                   child: const Text('Buy'),
                 ),
               );
+
             },
           );
         },
@@ -160,10 +170,11 @@ class _PlayerSkinsTabState extends State<PlayerSkinsTab> {
   }
 
   Future<void> selectItem(BuildContext context, String itemType, int itemId) async {
+    final userId = await getUserId();
     final response = await http.post(
       Uri.parse(selectItemEndpoint),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'item_type': itemType, 'item_id': itemId, 'user_id': 1}),
+      body: jsonEncode({'item_type': itemType, 'item_id': itemId, 'user_id': userId}),
     );
 
     if (response.statusCode == 200) {
@@ -175,10 +186,11 @@ class _PlayerSkinsTabState extends State<PlayerSkinsTab> {
   }
 
   Future<void> purchaseItem(BuildContext context, String itemType, int itemId) async {
+    final userId = await getUserId();
     final response = await http.post(
       Uri.parse(purchaseItemEndpoint),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'item_type': itemType, 'item_id': itemId, 'user_id': 1}),
+      body: jsonEncode({'item_type': itemType, 'item_id': itemId, 'user_id': userId}),
     );
 
     if (response.statusCode == 200) {
@@ -213,7 +225,7 @@ class _BackgroundSkinsTabState extends State<BackgroundSkinsTab> {
 
   Future<int> getUserId() async {
     final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getInt('user_id');
+    final userId = prefs.getInt('userId');
     if (userId == null) {
       throw Exception('User ID is not found. Please log in again.');
     }
@@ -266,15 +278,23 @@ class _BackgroundSkinsTabState extends State<BackgroundSkinsTab> {
             itemCount: backgrounds.length,
             itemBuilder: (context, index) {
               final background = backgrounds[index];
-              final String name = background['background_name']?.toString() ?? 'Unknown';
-              final String image = background['background_image']?.toString() ?? '';
+              final String name = background['name']?.toString() ?? 'Unknown';
+              final String image = background['image']?.toString() ?? '';
               final int cost = background['cost'] as int;
               final bool isUnlocked = background['isUnlocked'] as bool;
               final bool isSelected = background['isSelected'] as bool;
 
+              final String baseUrl = 'http://192.168.18.37:8000'; // Replace with your server's base URL
+              final String imageUrl = image.isNotEmpty ? '$baseUrl/storage/$image' : '';
+
               return ListTile(
-                leading: image.isNotEmpty
-                    ? Image.network(image, width: 50, height: 50)
+                leading: imageUrl.isNotEmpty
+                    ? Image.network(
+                  imageUrl,
+                  width: 100,
+                  height: 100,
+                  errorBuilder: (context, error, stackTrace) => Icon(Icons.image_not_supported),
+                )
                     : const SizedBox(),
                 title: Text(name, style: TextStyle(color: palette.skinsText.color)),
                 subtitle: Text('Cost: $cost'),
@@ -289,12 +309,12 @@ class _BackgroundSkinsTabState extends State<BackgroundSkinsTab> {
                 )
                     : ElevatedButton(
                   onPressed: () {
-                    // Purchase background
                     purchaseItem(context, 'background', background['id'] as int);
                   },
                   child: const Text('Buy'),
                 ),
               );
+
             },
           );
         },
@@ -303,10 +323,11 @@ class _BackgroundSkinsTabState extends State<BackgroundSkinsTab> {
   }
 
   Future<void> selectItem(BuildContext context, String itemType, int itemId) async {
+    final userId = await getUserId();
     final response = await http.post(
       Uri.parse(selectItemEndpoint),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'item_type': itemType, 'item_id': itemId, 'user_id': 1}),
+      body: jsonEncode({'item_type': itemType, 'item_id': itemId, 'user_id': userId}),
     );
 
     if (response.statusCode == 200) {
@@ -318,10 +339,11 @@ class _BackgroundSkinsTabState extends State<BackgroundSkinsTab> {
   }
 
   Future<void> purchaseItem(BuildContext context, String itemType, int itemId) async {
+    final userId = await getUserId();
     final response = await http.post(
       Uri.parse(purchaseItemEndpoint),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'item_type': itemType, 'item_id': itemId, 'user_id': 1}),
+      body: jsonEncode({'item_type': itemType, 'item_id': itemId, 'user_id': userId}),
     );
 
     if (response.statusCode == 200) {

@@ -17,7 +17,10 @@ class SignInScreen extends StatelessWidget {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
     await prefs.setInt('userId', userId);
+    print('Session saved: token=$token, userId=$userId'); // Debug log
   }
+
+
 
   Future<void> _signIn(BuildContext context, String email, String password) async {
     final audioController = context.read<AudioController>();

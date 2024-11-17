@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -88,44 +87,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
   }
-
-  Future<void> updateProfilePhoto(File image) async {
-    try {
-      final request = http.MultipartRequest(
-        'POST',
-        Uri.parse('$updateProfilePhotoEndpoint/$userId'),
-      );
-      request.headers['Authorization'] = 'Bearer $token';
-      request.files.add(await http.MultipartFile.fromPath('profile_image', image.path));
-
-      final response = await request.send();
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile photo updated successfully!')),
-        );
-        await fetchUserData(); // Refresh user data after update
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update profile photo')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred: $e')),
-      );
-    }
+  Future<void> logOut() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Clear all saved session data
   }
 
-  Future<void> pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      final image = File(pickedFile.path);
-      await updateProfilePhoto(image);
-    }
+  Future<void> saveUserId(int userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('userId', userId); // Save the new user's ID
   }
+
+  Future<int> getUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('userId');
+    if (userId == null) {
+      throw Exception('User ID is not found. Please log in again.');
+    }
+    return userId;
+  }
+
 
   Future<void> logout(BuildContext context) async {
     final audioController = context.read<AudioController>();
@@ -161,9 +141,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  /// Clear user session data
   Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+    print('Session cleared'); // Debug log
   }
 
   @override
@@ -203,7 +185,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   if (isLoggedIn && userData != null) ...[
                     GestureDetector(
-                      onTap: pickImage,
                       child: CircleAvatar(
                         radius: 50,
                         backgroundImage: userData!['profile_image'] != null &&
@@ -211,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ? NetworkImage(userData!['profile_image']!.toString())
                             : null,
                         child: userData!['profile_image'] == null
-                            ? const Icon(Icons.camera_alt, size: 50)
+                            ? const Icon(Icons.person, size: 50)
                             : null,
                       ),
                     ),

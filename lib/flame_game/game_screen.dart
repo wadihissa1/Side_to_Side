@@ -10,18 +10,13 @@ import '../player_progress/player_progress.dart';
 import 'endless_runner.dart';
 import 'game_win_dialog.dart';
 
-/// This widget defines the properties of the game screen.
-///
-/// It mostly sets up the overlays (widgets shown on top of the Flame game) and
-/// the gets the [AudioController] from the context and passes it in to the
-/// [EndlessRunner] class so that it can play audio.
 class GameScreen extends StatelessWidget {
   const GameScreen({required this.level, super.key});
 
   final GameLevel level;
 
   static const String winDialogKey = 'win_dialog';
-  static const String backButtonKey = 'back_buttton';
+  static const String backButtonKey = 'back_button'; // Fixed typo
 
   @override
   Widget build(BuildContext context) {
@@ -48,9 +43,10 @@ class GameScreen extends StatelessWidget {
           },
           winDialogKey: (BuildContext context, EndlessRunner game) {
             return GameWinDialog(
-              level: level,
-              levelCompletedIn: game.world.levelCompletedIn,
-            );
+      level: game.level,
+      highScore: game.currentScore.toInt(),
+      coinsCollected: game.totalCoins,
+    );
           },
         },
       ),

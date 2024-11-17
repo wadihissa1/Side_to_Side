@@ -87,7 +87,7 @@ class _InstructionsDialogState extends State<InstructionsDialog> {
                       const Flexible(
                         flex: 7,
                         child: Text(
-                          'You have to save as many Embers as possible to clear the level.',
+                          'You have to save as many Embers as possible to unlock new skins.',
                         ),
                       ),
                       const SizedBox(width: 20),
